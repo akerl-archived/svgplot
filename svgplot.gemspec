@@ -1,0 +1,17 @@
+require File.join(Dir.pwd, 'lib/svgplot.rb')
+
+Gem::Specification.new do |s|
+    s.name        = 'svgplot'
+    s.version     = SVGPlot::Version
+    s.date        = Time.now.strftime("%Y-%m-%d")
+
+    s.summary     = 'SVG generation library'
+    s.description = "Create SVG images for charts and other displays"
+    s.authors     = ['Les Aker']
+    s.email       = 'me@lesaker.org'
+    s.homepage    = 'https://github.com/akerl/svgplot'
+    s.license     = 'MIT'
+
+    s.files       = `git ls-files`.split
+end
+
