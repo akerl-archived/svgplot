@@ -1,6 +1,8 @@
 ##
 # SVG generation module
 
+require 'svgplot/svg_spec.rb'
+
 module SVGPlot
     Version = '0.0.1'
     class << self

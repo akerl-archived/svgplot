@@ -5,13 +5,15 @@ Gem::Specification.new do |s|
     s.version     = SVGPlot::Version
     s.date        = Time.now.strftime("%Y-%m-%d")
 
-    s.summary     = 'SVG generation library'
-    s.description = "Create SVG images for charts and other displays"
+    s.summary     = 'SVG Generation Library'
+    s.description = "Ruby interface for creating SVG images"
     s.authors     = ['Les Aker']
     s.email       = 'me@lesaker.org'
     s.homepage    = 'https://github.com/akerl/svgplot'
     s.license     = 'MIT'
 
     s.files       = `git ls-files`.split
+
+    s.add_development_dependency 'nokogiri'
 end
 

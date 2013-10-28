@@ -1,9 +1,9 @@
 svgplot
 ============
 
-[![Gem Version](https://badge.fury.io/rb/github_chart.png)](http://badge.fury.io/rb/svgplot)
+[![Gem Version](https://badge.fury.io/rb/svgplot.png)](http://badge.fury.io/rb/svgplot)
 
-A Ruby SVG generation tool, very loosely based on [Rasem](https://github.com/aseldawy/rasem)
+SVG creation library forked from [xytis's Rasem fork](https://github.com/xytis/rasem).
 
 ## Usage
 
