@@ -1,4 +1,4 @@
-Rasem::SVG_ELEMENTS = 
+SVGPlot::SVG_ELEMENTS = 
 [:a,
  :altGlyph,
  :altGlyphDef,
@@ -79,7 +79,7 @@ Rasem::SVG_ELEMENTS =
  :use,
  :view,
  :vkern]
-Rasem::SVG_STRUCTURE = 
+SVGPlot::SVG_STRUCTURE = 
 {:a=>
   {:elements=>
     [:a,
