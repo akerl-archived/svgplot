@@ -41,9 +41,9 @@ xmlns = [
 structure[:svg][:attributes].push(:xmlns, *xmlns)
 
 File.open(file_path, 'w') do |file|
-    file << "Rasem::SVG_ELEMENTS = \n"
+    file << "SVGPlot::SVG_ELEMENTS = \n"
     PP.pp(elements,file)
-    file << "Rasem::SVG_STRUCTURE = \n"
+    file << "SVGPlot::SVG_STRUCTURE = \n"
     PP.pp(structure,file)
 end
 

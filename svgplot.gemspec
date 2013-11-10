@@ -1,4 +1,5 @@
-require File.join(Dir.pwd, 'lib/svgplot.rb')
+$:.push File.expand_path("../lib", __FILE__)
+require 'svgplot'
 
 Gem::Specification.new do |s|
     s.name        = 'svgplot'
