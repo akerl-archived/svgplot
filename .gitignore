@@ -1,2 +1,5 @@
-*.gem
+pkg/*.gem
+coverage/
+.coveralls.yml
+.bundle
 Gemfile.lock
