@@ -1,4 +1,7 @@
-SVGPlot::SVG_ELEMENTS = 
+# rubocop:disable SpaceAroundOperators
+# rubocop:disable SpaceInsideHashLiteralBraces
+# rubocop:disable HashSyntax
+SVGPlot::SVG_ELEMENTS =
 [:a,
  :altGlyph,
  :altGlyphDef,
@@ -79,7 +82,7 @@ SVGPlot::SVG_ELEMENTS =
  :use,
  :view,
  :vkern]
-SVGPlot::SVG_STRUCTURE = 
+SVGPlot::SVG_STRUCTURE =
 {:a=>
   {:elements=>
     [:a,

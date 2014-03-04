@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'pp'
 
-file_path = 'lib/svgplot/svg_spec.rb'
+file_path = 'lib/svgplot/spec.rb'
 version_url = 'http://www.w3.org/TR/SVG11/'
 
 elements = []
@@ -38,9 +38,12 @@ puts
 xmlns = %w[svg cc dc rdf inkscape xlink].map! { |e| ('xmlns:' + e).to_sym }
 structure[:svg][:attributes].push(:xmlns, *xmlns)
 
+skipped_cops = %w[SpaceAroundOperators SpaceInsideHashLiteralBraces HashSyntax]
+
 File.open(file_path, 'w') do |file|
-  file << "SVGPlot::SVG_ELEMENTS = \n"
+  skipped_cops.each { |cop| file << "# rubocop:disable #{cop}\n" }
+  file << "SVGPlot::SVG_ELEMENTS =\n"
   PP.pp(elements, file)
-  file << "SVGPlot::SVG_STRUCTURE = \n"
+  file << "SVGPlot::SVG_STRUCTURE =\n"
   PP.pp(structure, file)
 end
