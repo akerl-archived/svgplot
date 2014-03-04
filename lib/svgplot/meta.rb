@@ -4,11 +4,11 @@ SVGPlot::SVG_ALIAS = {
 }
 
 SVGPlot::SVG_EXPANSION = {
-  line: %i[x1 y1 x2 :y2],
-  circle: %i[cx cy r],
-  image: %i[x y width height xlink:href],
-  ellipse: %i[cx cy rx ry],
-  text: %i[x y],
+  line: [:x1, :y1, :x2, :y2],
+  circle: [:cx, :cy, :r],
+  image: [:x, :y, :width, :height, :'xlink:href'],
+  ellipse: [:cx, :cy, :rx, :ry],
+  text: [:x, :y],
   rect: lambda do |args|
     unless [4, 5, 6].include? args.size
       fail ArgumentError 'Wrong unnamed argument count'
