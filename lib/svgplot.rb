@@ -1,6 +1,5 @@
 ##
 # SVG generation module
-
 module SVGPlot
     class << self
         ##
@@ -13,7 +12,6 @@ module SVGPlot
 
     ##
     # Plot object (represents an SVG image)
-
     class Plot
     end
 end
