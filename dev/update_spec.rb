@@ -35,7 +35,7 @@ Nokogiri::HTML(open(version_url + 'eltindex.html')).css('li').each do |li|
 end
 puts
 
-xmlns = %w(svg cc dc rdf inkscape xlink].map! { |e| ('xmlns:' + e).to_sym )
+xmlns = %w(svg cc dc rdf inkscape xlink).map! { |e| ('xmlns:' + e).to_sym }
 structure[:svg][:attributes].push(:xmlns, *xmlns)
 
 skipped_cops = %w(SpaceAroundOperators SpaceInsideHashLiteralBraces HashSyntax)
