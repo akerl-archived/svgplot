@@ -1,6 +1,8 @@
+#!/usr/bin/env ruby
+
 require 'svgplot'
 
-img = SVGPlot.new(:width=>100, :height=>100) do
+img = SVGPlot.new(width: 100, height: 100) do
   circle 20, 20, 5
   circle 50, 50, 5
   line 20, 20, 50, 50

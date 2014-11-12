@@ -5,14 +5,9 @@ module SVGPlot
     ##
     # Add .new() helper for creating a new Plot object
 
-    def new(*args)
-      self::Plot.new(*args)
+    def new(*args, &block)
+      self::Plot.new(*args, &block)
     end
-  end
-
-  ##
-  # Plot object (represents an SVG image)
-  class Plot
   end
 end
 
