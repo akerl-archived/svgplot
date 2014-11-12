@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
 
   s.files       = `git ls-files`.split
   s.test_files  = `git ls-files spec/*`.split
+  s.executables = ['svgplot']
 
   s.add_development_dependency 'rubocop', '~> 0.27.0'
   s.add_development_dependency 'rake', '~> 10.3.2'
