@@ -67,5 +67,9 @@ SVGPlot::CSS_STYLE = [
   :stroke,
   :fill_opacity,
   :stroke_opacity,
-  :opacity
+  :opacity,
+  :'text-align',
+  :font,
+  :'white-space',
+  :display
 ]

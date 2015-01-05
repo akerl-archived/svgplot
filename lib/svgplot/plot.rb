@@ -8,7 +8,7 @@ module SVGPlot
       @children = []
 
       if block
-        instance_exec block
+        instance_exec &block
       end
     end
 
@@ -420,8 +420,8 @@ module SVGPlot
     # Writes file header
     def write_header(output)
       output << <<-HEADER
-  <?xml version="1.0" standalone="no"?>
-  <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
       HEADER
     end
   end
