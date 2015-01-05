@@ -1,35 +1,32 @@
-class SVGPlot::Application
-  def self.run!(*argv)
-    if argv.empty?
-      source_files = Dir.glob(File.expand_path("*.rasem"))
-    else
-      source_files = argv
+module SVGPlot
+  ##
+  # Application object for running .svgplot files
+  class Application
+    def initialize(*args)
+      @files = args.empty? ? Dir.glob(File.expand_path('*.svgplot')) : args
+      fail('No input files') if @files.empty?
     end
 
-    if source_files.empty?
-      puts "No input files"
-      return 1
-    end
-
-    for source_file in source_files
-      if source_file =~ /\.rasem$/
-        svg_file = source_file.sub(/\.rasem$/, '.svg')
-      else
-        svg_file = source_file + ".svg"
-      end
-      File.open(svg_file, "w") do |fout|
-        SVGPlot::Plot.new({:width=>"100%", :height=>"100%"}, fout) do
-          begin
-            instance_eval File.read(source_file), source_file
-          rescue Exception => e
-            # Keep the portion of stack trace that belongs to the .rasem file
-            backtrace = e.backtrace.grep(Regexp.new(File.expand_path(source_file)))
-            raise e.class, e.message, backtrace
-          end
+    def run!
+      @files.each do |file|
+        output = file.sub(/\.svgplot/, '') + '.svg'
+        File.open(output, 'w') do |fh|
+          build file, fh
         end
       end
     end
 
-    return 0
+    private
+
+    def build(file, fh)
+      SVGPlot::Plot.new({ width: '100%', height: '100%' }, fh) do
+        begin
+          instance_eval File.read(file), file
+        rescue StandardError => e
+          backtrace = e.backtrace.grep(Regexp.new(File.expand_path(file)))
+          raise e.class, e.message, backtrace
+        end
+      end
+    end
   end
 end
