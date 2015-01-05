@@ -1,3 +1,4 @@
+# rubocop:disable all
 module SVGPlot
   class SVGTag
     attr_reader :tag, :attributes, :children
