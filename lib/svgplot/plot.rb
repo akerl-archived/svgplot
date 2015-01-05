@@ -62,6 +62,8 @@ module SVGPlot
           transforms[attribute] = value
         elsif SVGPlot::CSS_STYLE.include? attribute
           styles[attribute] = value
+        elsif attribute.match(/^data-[a-z]+$/)
+          clean_attributes[attribute] = value
         else
           clean_attributes[validate_attribute(attribute)] = value
         end
