@@ -175,10 +175,6 @@ module SVGPlot
         parameters[key] = value unless parameters[key]
       end if @defaults
 
-      SVGPlot::SVG_DEFAULTS[tag.to_sym].each do |key, value|
-        parameters[key] = value unless parameters[key]
-      end if SVGPlot::SVG_DEFAULTS[tag.to_sym]
-
       append_child(SVGPlot::SVGTagWithParent.new(@img, tag, parameters, &block))
     end
 

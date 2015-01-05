@@ -41,16 +41,6 @@ SVGPlot::SVG_EXPANSION = {
   end
 }
 
-SVGPlot::SVG_DEFAULTS = {
-  text: { fill: 'black' },
-  line: { stroke: 'black' },
-  rect: { stroke: 'black' },
-  circle: { stroke: 'black' },
-  ellipse: { stroke: 'black' },
-  polygon: { stroke: 'black' },
-  polyline: { stroke: 'black' }
-}
-
 # TODO: move to documentation?
 SVGPlot::SVG_TRANSFORM = [
   :matrix,    # expects an array of 6 elements
