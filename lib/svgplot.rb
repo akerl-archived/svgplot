@@ -12,4 +12,6 @@ module SVGPlot
 end
 
 require 'svgplot/spec'
+require 'svgplot/application'
 require 'svgplot/meta'
+require 'svgplot/plot'
