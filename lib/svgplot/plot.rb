@@ -78,7 +78,7 @@ module SVGPlot
       end
 
       attributes.each do |key, value|
-        clean_attributes[validate_attribute(attribute)] = value
+        clean_attributes[validate_attribute(key)] = value
       end
 
       clean_attributes
