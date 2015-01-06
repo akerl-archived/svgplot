@@ -50,16 +50,3 @@ SVGPlot::SVG_TRANSFORM = [
   :skewX,     # angle
   :skewY      # angle
 ]
-
-SVGPlot::CSS_STYLE = [
-  :fill,
-  :stroke_width,
-  :stroke,
-  :fill_opacity,
-  :stroke_opacity,
-  :opacity,
-  :'text-align',
-  :font,
-  :'white-space',
-  :display
-]

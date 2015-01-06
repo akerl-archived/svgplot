@@ -53,23 +53,10 @@ module SVGPlot
     end
 
     def validate_attributes(attributes)
-      clean_attributes = {}
       transforms = {}
-      styles = {}
-
-      attributes.each do |attribute, value|
-        if SVGPlot::SVG_TRANSFORM.include? attribute
-          transforms[attribute] = value
-        elsif SVGPlot::CSS_STYLE.include? attribute
-          styles[attribute] = value
-        elsif attribute.match(/^data-[a-z]+$/)
-          clean_attributes[attribute] = value
-        else
-          clean_attributes[validate_attribute(attribute)] = value
-        end
+      attributes.delete(:transforms) { Hash.new }.each do |key, value|
+        transforms[key] = value
       end
-
-      #always prefer more verbose definition.
       unless transforms.empty?
         transforms.merge!(clean_attributes[:transform]) if clean_attributes[:transform]
         str = ""
@@ -77,10 +64,23 @@ module SVGPlot
         clean_attributes[validate_attribute(:transform)] = str
       end
 
+      styles = {}
+      attributes.delete(:style) { Hash.new }.each { |k, v| styles[k] = v }
       unless styles.empty?
         styles.merge!(clean_attributes[:style]) if clean_attributes[:style]
         clean_attributes[validate_attribute(:style)] = styles
       end
+
+      clean_attributes = {}
+
+      attributes.delete(:data) { Hash.new }.each do |key, value|
+        clean_attributes["data-#{key.to_s}".to_sym] = value
+      end
+
+      attributes.each do |key, value|
+        clean_attributes[validate_attribute(attribute)] = value
+      end
+
       clean_attributes
     end
 
