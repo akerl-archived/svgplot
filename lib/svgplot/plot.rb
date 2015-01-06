@@ -53,12 +53,13 @@ module SVGPlot
     end
 
     def validate_attributes(attributes)
+      clean_attributes = {}
+
       transforms = {}
-      attributes.delete(:transforms) { Hash.new }.each do |key, value|
+      attributes.delete(:transform) { Hash.new }.each do |key, value|
         transforms[key] = value
       end
       unless transforms.empty?
-        transforms.merge!(clean_attributes[:transform]) if clean_attributes[:transform]
         str = ""
         write_transforms(transforms, str)
         clean_attributes[validate_attribute(:transform)] = str
@@ -67,11 +68,8 @@ module SVGPlot
       styles = {}
       attributes.delete(:style) { Hash.new }.each { |k, v| styles[k] = v }
       unless styles.empty?
-        styles.merge!(clean_attributes[:style]) if clean_attributes[:style]
         clean_attributes[validate_attribute(:style)] = styles
       end
-
-      clean_attributes = {}
 
       attributes.delete(:data) { Hash.new }.each do |key, value|
         clean_attributes["data-#{key.to_s}".to_sym] = value
