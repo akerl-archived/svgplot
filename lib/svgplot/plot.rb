@@ -96,30 +96,29 @@ module SVGPlot
     def spawn_child(tag, *args, &block)
       parameters = {} if args.size == 0
 
-      unless parameters
-        parameters = args[0] if args[0].is_a? Hash
-      end
+      parameters = args[0] if args[0].is_a?(Hash) && parameters.nil?
 
       unless parameters
         expansion = SVGPlot::SVG_EXPANSION[tag.to_sym]
-        raise "Unnamed parameters for #{tag} are not allowed!" unless expansion
-      
+        fail("Unnamed parameters for #{tag} are not allowed!") unless expansion
+
         if expansion.is_a? Array
-          raise "Bad unnamed parameter count for #{tag}, expecting #{expansion.size} got #{if args.last.is_a? Hash then args.size-1 else args.size end}" unless (args.size == expansion.size and not args.last.is_a? Hash) or (args.size - 1 == expansion.size and args.last.is_a? Hash)
-          parameters = Hash[expansion.zip(args)]
-          if args.last.is_a? Hash
-            parameters.merge! args.last
+          arg_hash = args.last.is_a?(Hash) ? args.pop : {}
+          unless args.size == expansion.size
+            fail("Bad arg count for #{tag}: wanted #{expansion.size} got #{args.size}") # rubocop:disable Metrics/LineLength
           end
+          parameters = Hash[expansion.zip(args)]
+          parameters.merge! arg_hash
         elsif expansion.is_a? Proc
           hash = args.pop if args.last.is_a? Hash
           parameters = expansion.call(args)
           parameters.merge! hash if hash
         else
-          raise "Unexpected expansion mechanism: #{expansion.class}"
+          fail "Unexpected expansion mechanism: #{expansion.class}"
         end
       end
 
-      merge_defaults().each do |key, value|
+      merge_defaults.each do |key, value|
         parameters[key] = value unless parameters[key]
       end if @defaults
 
@@ -128,11 +127,11 @@ module SVGPlot
 
     def append_child(child)
       @children.push(child)
-      child.push_defaults(merge_defaults()) if @defaults
+      child.push_defaults(merge_defaults) if @defaults
       child
     end
 
-    def merge_defaults()
+    def merge_defaults
       result = {}
       return result if @defaults.empty?
       @defaults.each { |d| result.merge!(d) }
@@ -140,54 +139,57 @@ module SVGPlot
     end
 
     def push_defaults(defaults)
-      @defaults = [] unless @defaults
+      @defaults ||= []
       @defaults.push(defaults)
     end
 
-    def pop_defaults()
-      @defaults.pop()
+    def pop_defaults
+      @defaults.pop
     end
-    
-    def with_style(style={}, &proc)
+
+    def with_style(style = {}, &proc)
       push_defaults(style)
-      self.instance_exec(&proc)
-      pop_defaults()
+      instance_exec(&proc)
+      pop_defaults
     end
-    
+
     def validate_child_name(name)
       name = SVGPlot::SVG_ALIAS[name.to_sym] if SVGPlot::SVG_ALIAS[name.to_sym]
 
       if SVGPlot::SVG_STRUCTURE[@tag.to_sym][:elements].include?(name.to_sym)
         name.to_sym
       elsif SVGPlot::SVG_ELEMENTS.include?(name.to_sym)
-        raise "#{@tag} should not contain child #{name}" 
+        fail "#{@tag} should not contain child #{name}"
       end
     end
 
     def method_missing(meth, *args, &block)
       check = /^(?<name>.*)(?<op>=|\?)$/.match(meth)
+      child_name = validate_child_name(meth)
       if check
-        raise "Passing a code block to setter or getter is not permited!" if block
+        fail('Passing a block to setter or getter is not permitted') if block
         name = validate_attribute(check[:name].to_sym)
         if check[:op] == '?'
           @attributes[name]
         elsif check[:op] == '='
-          raise "Setting an attribute with multiple values is not permited!" if args.size > 1
+          if args.size > 1
+            fail('Setting an attribute with multiple values is not permitted!')
+          end
           @attributes[name] = args[0]
         end
-      elsif child = validate_child_name(meth)
-        spawn_child(child, *args, &block)
+      elsif child_name
+        spawn_child(child_name, *args, &block)
       else
         super
       end
     end
-    
+
     def write(output)
       fail('Can not write to given output!') unless output.respond_to? :<<
       output << "<#{@tag}"
       @attributes.each do
         |attribute, value|
-        output << " #{attribute.to_s}=\""
+        output << " #{attribute}=\""
         if attribute == :style
           write_styles(value, output)
         elsif attribute == :points
@@ -489,36 +491,6 @@ module SVGPlot
 
     def add_d(op)
       @attributes[:d] = "#{@attributes[:d]} #{op}"
-    end
-  end
-
-  # SVG base gradient element, with ruby methods to describe the gradient
-  class SVGGradient < SVGPlot::SVGTagWithParent
-    def fill
-      "url(##{@attributes[:id]})"
-    end
-
-    def stop(offset, color, opacity)
-      append_child(SVGPlot::SVGTag.new(
-        'stop',
-        'offset' => offset,
-        'stop-color' => color,
-        'stop-opacity' => opacity
-      ))
-    end
-  end
-
-  # SVG linear gradient element
-  class SVGLinearGradient < SVGPlot::SVGGradient
-    def initialize(img, attributes = {}, &block)
-      super(img, 'linearGradient', attributes, &block)
-    end
-  end
-
-  # SVG radial gradient element
-  class SVGRadialGradient < SVGPlot::SVGGradient
-    def initialize(img, attributes = {}, &block)
-      super(img, 'radialGradient', attributes, &block)
     end
   end
 end
