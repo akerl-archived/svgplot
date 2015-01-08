@@ -1,7 +1,7 @@
 module SVGPlot
   ##
   # Provide methods for SVG transformations
-  module Transform
+  module Transforms
     # rubocop:disable Style/MethodName
     def translate(tx, ty = 0)
       add_transform(:translate, "#{tx}, #{ty}")

@@ -2,7 +2,7 @@ module SVGPlot
   ##
   # Main tag object, used for all SVG components
   class SVGTag
-    include SVGPlot::Transform
+    include SVGPlot::Transforms
 
     attr_reader :tag, :attributes, :children
 
