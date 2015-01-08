@@ -1,55 +1,22 @@
-# rubocop:disable all
 module SVGPlot
+  ##
+  # Main tag object, used for all SVG components
   class SVGTag
+    include SVGPlot::Transform
+
     attr_reader :tag, :attributes, :children
 
-    def initialize(tag, attributes={}, &block)
+    def initialize(tag, attributes = {}, &block)
       @tag = validate_tag(tag)
       @attributes = validate_attributes(attributes)
       @children = []
 
-      if block
-        instance_exec &block
-      end
-    end
-
-    ##
-    # Provide methods for SVG transformations
-    ##
-
-    def translate(tx, ty = 0)
-      add_transform(:translate, "#{tx}, #{ty}")
-      self
-    end
-
-    def scale(sx, sy = 1)
-      add_transform(:scale, "#{sx}, #{sy}")
-      self
-    end
-
-    def rotate(angle, cx = nil, cy = nil)
-      add_transform(:rotate, "#{angle}#{(cx.nil? or cy.nil?) ? "" : ", #{cx}, #{cy}"}")
-      self
-    end
-
-    def skewX(angle)
-      add_transform(:skewX, "#{angle}")
-      self
-    end
-
-    def skewY(angle)
-      add_transform(:skewY, "#{angle}")
-      self
-    end
-
-    def matrix(a, b, c, d, e, f)
-      add_transform(:matrix, "#{a}, #{b}, #{c}, #{d}, #{e}, #{f}")
-      self
+      instance_exec(&block) if block
     end
 
     def validate_tag(tag)
-      raise "#{tag} is not a valid tag" unless SVGPlot::SVG_ELEMENTS.include?(tag.to_sym)
-      tag.to_sym
+      return tag.to_sym if SVGPlot::SVG_ELEMENTS.include?(tag.to_sym)
+      fail "#{tag} is not a valid tag"
     end
 
     def validate_attributes(attributes)
@@ -60,19 +27,17 @@ module SVGPlot
         transforms[key] = value
       end
       unless transforms.empty?
-        str = ""
+        str = ''
         write_transforms(transforms, str)
         clean_attributes[validate_attribute(:transform)] = str
       end
 
       styles = {}
       attributes.delete(:style) { Hash.new }.each { |k, v| styles[k] = v }
-      unless styles.empty?
-        clean_attributes[validate_attribute(:style)] = styles
-      end
+      clean_attributes[validate_attribute(:style)] = styles unless styles.empty?
 
       attributes.delete(:data) { Hash.new }.each do |key, value|
-        clean_attributes["data-#{key.to_s}".to_sym] = value
+        clean_attributes["data-#{key}".to_sym] = value
       end
 
       attributes.each do |key, value|
@@ -83,14 +48,15 @@ module SVGPlot
     end
 
     def validate_attribute(attribute)
-      raise "#{@tag} does not support attribute #{attribute}" unless SVGPlot::SVG_STRUCTURE[@tag.to_sym][:attributes].include?(attribute.to_sym)
-      attribute.to_sym
+      allowed = SVGPlot::SVG_STRUCTURE[@tag.to_sym][:attributes]
+      return attribute.to_sym if allowed.include?(attribute.to_sym)
+      fail "#{@tag} does not support attribute #{attribute}"
     end
 
     def write_styles(styles, output)
       styles.each do |attribute, value|
         attribute = attribute.to_s
-        attribute.gsub!('_','-')
+        attribute.gsub!('_', '-')
         output << "#{attribute}:#{value};"
       end
     end
@@ -98,7 +64,7 @@ module SVGPlot
     def write_transforms(transforms, output)
       transforms.each do |attribute, value|
         value = [value] unless value.is_a?(Array)
-        output << "#{attribute.to_s}(#{value.join(',')}) "
+        output << "#{attribute}(#{value.join(',')}) "
       end
     end
 
@@ -106,53 +72,49 @@ module SVGPlot
       points.each_with_index do |value, index|
         output << value.to_s
         output << ',' if index.even?
-        output << ' ' if (index.odd? and (index != points.size-1))
+        output << ' ' if index.odd? && index != points.size - 1
       end
     end
 
-    #special case for raw blocks.
     def raw(data)
       append_child SVGPlot::SVGRaw.new(@img, data)
     end
 
-    #special case for path block
     def path(attributes = {}, &block)
       append_child SVGPlot::SVGPath.new(@img, attributes, &block)
     end
 
-    #special case for use block
     def use(id, attributes = {})
       id = id.attributes[:id] if id.is_a? SVGPlot::SVGTag
-      append_child SVGPlot::SVGTagWithParent.new(@img, "use", attributes.merge("xlink:href" => "##{id}"))
+      append_child SVGPlot::SVGTagWithParent.new(
+        @img,
+        'use',
+        attributes.merge('xlink:href' => "##{id}")
+      )
     end
 
-
-    #special case for linearGradient
-    def linearGradient(id, attributes={}, if_exists = :skip, &block)
-      raise "image reference isn't set, cannot use 'defs' (and thus linearGradient) !" if @img.nil?
-      @img.add_def(id, SVGPlot::SVGLinearGradient.new(@img, attributes), if_exists, &block)
+    # rubocop disable:Style/MethodName
+    def linearGradient(id, attributes = {}, if_exists = :skip, &block)
+      fail('image ref not set, cannot use linearGradient') if @img.nil?
+      object = SVGPlot::SVGLinearGradient.new(@img, attributes)
+      @img.add_def(id, object, if_exists, &block)
     end
 
-    
-    #special case for radialGradient
-    def radialGradient(id, attributes={}, if_exists = :skip, &block)
-      raise "image reference isn't set, cannot use 'defs' (and thus radialGradient) !" if @img.nil?
-      @img.add_def(id, SVGPlot::SVGRadialGradient.new(@img, attributes), if_exists, &block)
+    def radialGradient(id, attributes = {}, if_exists = :skip, &block)
+      fail('image ref not set, cannot use radialGradient') if @img.nil?
+      object = SVGPlot::SVGRadialGradient.new(@img, attributes)
+      @img.add_def(id, object, if_exists, &block)
     end
-
-
-
+    # rubocop enable:Style/MethodName
 
     def spawn_child(tag, *args, &block)
-      #expected args: nil, [hash], [...]
       parameters = {} if args.size == 0
 
-      unless parameters #are empty
+      unless parameters
         parameters = args[0] if args[0].is_a? Hash
       end
 
-      unless parameters #are set
-        #try to find args expansion rule
+      unless parameters
         expansion = SVGPlot::SVG_EXPANSION[tag.to_sym]
         raise "Unnamed parameters for #{tag} are not allowed!" unless expansion
       
@@ -171,7 +133,6 @@ module SVGPlot
         end
       end
 
-      # add default parameters if they are not overwritten
       merge_defaults().each do |key, value|
         parameters[key] = value unless parameters[key]
       end if @defaults
@@ -179,13 +140,11 @@ module SVGPlot
       append_child(SVGPlot::SVGTagWithParent.new(@img, tag, parameters, &block))
     end
 
-
     def append_child(child)
       @children.push(child)
       child.push_defaults(merge_defaults()) if @defaults
       child
     end
-
 
     def merge_defaults()
       result = {}
@@ -194,32 +153,24 @@ module SVGPlot
       result
     end
 
-    
     def push_defaults(defaults)
       @defaults = [] unless @defaults
       @defaults.push(defaults)
     end
 
-    
     def pop_defaults()
       @defaults.pop()
     end
-
     
     def with_style(style={}, &proc)
       push_defaults(style)
-      # Call the block
       self.instance_exec(&proc)
-      # Pop style again to revert changes
       pop_defaults()
     end
-
     
     def validate_child_name(name)
-      #aliases the name (like, group instead of g)
       name = SVGPlot::SVG_ALIAS[name.to_sym] if SVGPlot::SVG_ALIAS[name.to_sym]
 
-      #raises only if given name is an actual svg tag. In other case -- assumes user just mistyped.
       if SVGPlot::SVG_STRUCTURE[@tag.to_sym][:elements].include?(name.to_sym)
         name.to_sym
       elsif SVGPlot::SVG_ELEMENTS.include?(name.to_sym)
@@ -227,9 +178,7 @@ module SVGPlot
       end
     end
 
-
     def method_missing(meth, *args, &block)
-      #if method is a setter or a getter, check valid attributes:
       check = /^(?<name>.*)(?<op>=|\?)$/.match(meth)
       if check
         raise "Passing a code block to setter or getter is not permited!" if block
@@ -247,7 +196,6 @@ module SVGPlot
       end
     end
     
-
     def write(output)
       raise "Can not write to given output!" unless output.respond_to?(:<<)
       output << "<#{@tag.to_s}"
@@ -279,21 +227,16 @@ module SVGPlot
       return str
     end
 
-
-  private
+    private
 
     def add_transform(type, params)
       attr_name = validate_attribute(:transform)
       @attributes[attr_name] = "" if @attributes[attr_name].nil?
       @attributes[attr_name] = @attributes[attr_name] + "#{type}(#{params})"
     end
-
   end
-end
 
-
-#Extension of SVGTag to provide a reference to the parent img (used for defs)
-module SVGPlot
+  # Extension of SVGTag to provide a reference to the parent img
   class SVGTagWithParent < SVGPlot::SVGTag
     attr_reader :img
 
@@ -302,14 +245,9 @@ module SVGPlot
       super(tag, params, &block)
     end
   end
-end
 
-
-
-#inherit from tag for basic functionality, control raw data using the write method
-module SVGPlot
+  # inherit from tag for basic functionality, control raw data using write
   class SVGRaw < SVGPlot::SVGTagWithParent
-
     def initialize(img, data)
       @img = img
       @data = data
@@ -319,11 +257,7 @@ module SVGPlot
       output << @data.to_s
     end
   end
-end
 
-
-
-module SVGPlot
   class Plot < SVGPlot::SVGTagWithParent
     def initialize(params = {}, output=nil, &block)
       @defs = nil
@@ -422,215 +356,199 @@ module SVGPlot
       HEADER
     end
   end
-end
 
 #SVG Path element, with ruby methods to describe the path
-class SVGPlot::SVGPath < SVGPlot::SVGTagWithParent
-  def initialize(img = nil, attributes={}, &block)
-    attributes.merge!(:d => "") unless attributes.has_key? :d
-    super(img, "path", attributes)
+  class SVGPath < SVGPlot::SVGTagWithParent
+    def initialize(img = nil, attributes={}, &block)
+      attributes.merge!(:d => "") unless attributes.has_key? :d
+      super(img, "path", attributes)
+    end
+
+    ##
+    # moveTo commands
+    #
+    # Moves pen to specified point x,y without drawing.
+    #
+    ##
+    def moveTo(x, y)
+      add_d("m#{x},#{y}")
+    end
+
+    def moveToA(x, y)
+      add_d("M#{x},#{y}")
+    end
+
+    ##
+    # lineTo commands
+    #
+    # Draws a line from current pen location to specified point x,y.
+    #
+    ##
+    def lineTo(x, y)
+      add_d("l#{x},#{y}")
+    end
+
+    def lineToA(x, y)
+      add_d("L#{x},#{y}")
+    end
+
+    ##
+    # horizontal lineTo commands
+    #
+    # Draws a horizontal line to the point defined by x.
+    #
+    ##
+    def hlineTo(x)
+      add_d("h#{x}")
+    end
+
+    def hlineToA(x)
+      add_d("H#{x}")
+    end
+
+    ##
+    # vertical lineTo commands
+    #
+    # Draws a vertical line to the point defined by y.
+    #
+    ##
+    def vlineTo(y)
+      add_d("v#{y}")
+    end
+
+    def vlineToA(y)
+      add_d("V#{y}")
+    end
+
+    ##
+    # curveTo commands
+    #
+    # Draws a cubic Bezier curve from current pen point to dx,dy. x1,y1 and x2,y2
+    # are start and end control points of the curve, controlling how it bends.
+    #
+    ##
+    def curveTo(dx, dy, x1, y1, x2, y2)
+      add_d("c#{x1},#{y1} #{x2},#{y2} #{dx},#{dy}")
+    end
+
+    def curveToA(dx, dy, x1, y1, x2, y2)
+      add_d("C#{x1},#{y1} #{x2},#{y2} #{dx},#{dy}")
+    end
+
+    ##
+    # smooth curveTo commands
+    #
+    # Draws a cubic Bezier curve from current pen point to dx,dy. x2,y2 is the
+    # end control point. The start control point is is assumed to be the same
+    # as the end control point of the previous curve.
+    #
+    ##
+    def scurveTo(dx, dy, x2, y2)
+      add_d("s#{x2},#{y2} #{dx},#{dy}")
+    end
+
+    def scurveToA(dx, dy, x2, y2)
+      add_d("S#{x2},#{y2} #{dx},#{dy}")
+    end
+
+    ##
+    # quadratic Bezier curveTo commands
+    # 
+    # Draws a quadratic Bezier curve from current pen point to dx,dy. x1,y1 is the
+    # control point controlling how the curve bends.
+    #
+    ##
+    def qcurveTo(dx, dy, x1, y1)
+      add_d("q#{x1},#{y1} #{dx},#{dy}")
+    end
+
+    def qcurveToA(dx, dy, x1, y1)
+      add_d("Q#{x1},#{y1} #{dx},#{dy}")
+    end
+
+    ##
+    # smooth quadratic Bezier curveTo commands
+    #
+    # Draws a quadratic Bezier curve from current pen point to dx,dy. The control
+    # point is assumed to be the same as the last control point used.
+    #
+    ##
+    def sqcurveTo(dx, dy)
+      add_d("t#{dx},#{dy}")
+    end
+
+    def sqcurveToA(dx, dy)
+      add_d("T#{dx},#{dy}")
+    end
+
+    ##
+    # elliptical arc commands
+    #
+    # Draws an elliptical arc from the current point to the point x,y. rx and ry
+    # are the elliptical radius in x and y direction.
+    # The x-rotation determines how much the arc is to be rotated around the
+    # x-axis. It only has an effect when rx and ry have different values.
+    # The large-arc-flag doesn't seem to be used (can be either 0 or 1). Neither
+    # value (0 or 1) changes the arc. 
+    # The sweep-flag determines the direction to draw the arc in.
+    #
+    ##
+    def arcTo(dx, dy, rx, ry, axis_rot, large_arc_flag, sweep_flag)
+      add_d(
+        "a#{rx},#{ry} #{axis_rot} #{large_arc_flag},#{sweep_flag} #{dx},#{dy}"
+      )
+    end
+
+    def arcToA(dx, dy, rx, ry, axis_rot, large_arc_flag, sweep_flag)
+      add_d(
+        "A#{rx},#{ry} #{axis_rot} #{large_arc_flag},#{sweep_flag} #{dx},#{dy}"
+      )
+    end
+
+    ##
+    # close path command
+    #
+    # Closes the path by drawing a line from current point to first point.
+    #
+    ##
+    def close
+      add_d('Z')
+    end
+
+    private
+
+    def add_d(op)
+      @attributes[:d] = "#{@attributes[:d]} #{op}"
+    end
   end
 
-  ##
-  # moveTo commands
-  #
-  # Moves pen to specified point x,y without drawing.
-  #
-  ##
-  def moveTo(x, y)
-    add_d("m#{x},#{y}")
+  # SVG base gradient element, with ruby methods to describe the gradient
+  class SVGGradient < SVGPlot::SVGTagWithParent
+    def fill
+      "url(##{@attributes[:id]})"
+    end
+
+    def stop(offset, color, opacity)
+      append_child(SVGPlot::SVGTag.new(
+        'stop',
+        'offset' => offset,
+        'stop-color' => color,
+        'stop-opacity' => opacity
+      ))
+    end
   end
 
-
-  def moveToA(x, y)
-    add_d("M#{x},#{y}")
+  # SVG linear gradient element
+  class SVGLinearGradient < SVGPlot::SVGGradient
+    def initialize(img, attributes = {}, &block)
+      super(img, 'linearGradient', attributes, &block)
+    end
   end
 
-
-  ##
-  # lineTo commands
-  #
-  # Draws a line from current pen location to specified point x,y.
-  #
-  ##
-  def lineTo(x, y)
-    add_d("l#{x},#{y}")
+  # SVG radial gradient element
+  class SVGRadialGradient < SVGPlot::SVGGradient
+    def initialize(img, attributes = {}, &block)
+      super(img, 'radialGradient', attributes, &block)
+    end
   end
-
-
-  def lineToA(x, y)
-    add_d("L#{x},#{y}")
-  end
-
-
-  ##
-  # horizontal lineTo commands
-  #
-  # Draws a horizontal line to the point defined by x.
-  #
-  ##
-  def hlineTo(x)
-    add_d("h#{x}")
-  end
-
-
-  def hlineToA(x)
-    add_d("H#{x}")
-  end
-
-
-  ##
-  # vertical lineTo commands
-  #
-  # Draws a vertical line to the point defined by y.
-  #
-  ##
-  def vlineTo(y)
-    add_d("v#{y}")
-  end
-
-
-  def vlineToA(y)
-    add_d("V#{y}")
-  end
-
-
-  ##
-  # curveTo commands
-  #
-  # Draws a cubic Bezier curve from current pen point to dx,dy. x1,y1 and x2,y2
-  # are start and end control points of the curve, controlling how it bends.
-  #
-  ##
-  def curveTo(dx, dy, x1, y1, x2, y2)
-    add_d("c#{x1},#{y1} #{x2},#{y2} #{dx},#{dy}")
-  end
-
-
-  def curveToA(dx, dy, x1, y1, x2, y2)
-    add_d("C#{x1},#{y1} #{x2},#{y2} #{dx},#{dy}")
-  end
-
-
-  ##
-  # smooth curveTo commands
-  #
-  # Draws a cubic Bezier curve from current pen point to dx,dy. x2,y2 is the
-  # end control point. The start control point is is assumed to be the same
-  # as the end control point of the previous curve.
-  #
-  ##
-  def scurveTo(dx, dy, x2, y2)
-    add_d("s#{x2},#{y2} #{dx},#{dy}")
-  end
-
-
-  def scurveToA(dx, dy, x2, y2)
-    add_d("S#{x2},#{y2} #{dx},#{dy}")
-  end
-
-
-  ##
-  # quadratic Bezier curveTo commands
-  # 
-  # Draws a quadratic Bezier curve from current pen point to dx,dy. x1,y1 is the
-  # control point controlling how the curve bends.
-  #
-  ##
-  def qcurveTo(dx, dy, x1, y1)
-    add_d("q#{x1},#{y1} #{dx},#{dy}")
-  end
-
-
-  def qcurveToA(dx, dy, x1, y1)
-    add_d("Q#{x1},#{y1} #{dx},#{dy}")
-  end
-
-
-  ##
-  # smooth quadratic Bezier curveTo commands
-  #
-  # Draws a quadratic Bezier curve from current pen point to dx,dy. The control
-  # point is assumed to be the same as the last control point used.
-  #
-  ##
-  def sqcurveTo(dx, dy)
-    add_d("t#{dx},#{dy}")
-  end
-
-
-  def sqcurveToA(dx, dy)
-    add_d("T#{dx},#{dy}")
-  end
-
-
-  ##
-  # elliptical arc commands
-  #
-  # Draws an elliptical arc from the current point to the point x,y. rx and ry
-  # are the elliptical radius in x and y direction.
-  # The x-rotation determines how much the arc is to be rotated around the
-  # x-axis. It only seems to have an effect when rx and ry have different values.
-  # The large-arc-flag doesn't seem to be used (can be either 0 or 1). Neither
-  # value (0 or 1) changes the arc. 
-  # The sweep-flag determines the direction to draw the arc in.
-  #
-  ##
-  def arcTo(dx, dy, rx, ry, axis_rotation, large_arc_flag, sweep_flag)
-    add_d("a#{rx},#{ry} #{axis_rotation} #{large_arc_flag},#{sweep_flag} #{dx},#{dy}")
-  end
-
-
-  def arcToA(dx, dy, rx, ry, axis_rotation, large_arc_flag, sweep_flag)
-    add_d("A#{rx},#{ry} #{axis_rotation} #{large_arc_flag},#{sweep_flag} #{dx},#{dy}")
-  end
-
-
-  ##
-  # close path command
-  #
-  # Closes the path by drawing a line from current point to first point.
-  #
-  ##
-  def close
-    add_d("Z")
-  end
-
-
-  private 
-  def add_d(op)
-    @attributes[:d] = @attributes[:d] + " " + op
-  end
-end
-
-#SVG base gradient element, with ruby methods to describe the gradient
-class SVGPlot::SVGGradient < SVGPlot::SVGTagWithParent
-
-  def fill
-    "url(##{@attributes[:id]})"
-  end
-
-
-  def stop(offset, color, opacity)
-    append_child(SVGPlot::SVGTag.new("stop", "offset" => offset, "stop-color" => color, "stop-opacity" => opacity))
-  end
-
-end
-
-#SVG linear gradient element
-class SVGPlot::SVGLinearGradient < SVGPlot::SVGGradient
-
-  def initialize(img, attributes={}, &block)
-    super(img, "linearGradient", attributes, &block)
-  end
-
-end
-
-#SVG radial gradient element
-class SVGPlot::SVGRadialGradient < SVGPlot::SVGGradient
-
-  def initialize(img, attributes={}, &block)
-    super(img, "radialGradient", attributes, &block)
-  end
-
 end

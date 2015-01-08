@@ -14,4 +14,5 @@ end
 require 'svgplot/spec'
 require 'svgplot/application'
 require 'svgplot/meta'
+require 'svgplot/transform'
 require 'svgplot/plot'
