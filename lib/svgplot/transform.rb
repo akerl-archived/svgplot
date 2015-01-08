@@ -2,6 +2,7 @@ module SVGPlot
   ##
   # Provide methods for SVG transformations
   module Transform
+    # rubocop:disable Style/MethodName
     def translate(tx, ty = 0)
       add_transform(:translate, "#{tx}, #{ty}")
       self
@@ -13,7 +14,8 @@ module SVGPlot
     end
 
     def rotate(angle, cx = nil, cy = nil)
-      add_transform(:rotate, "#{angle}#{(cx.nil? or cy.nil?) ? "" : ", #{cx}, #{cy}"}")
+      string = [cx, cy].any?(&:nil?) ?  "#{angle}" : "#{angle}, #{cx}, #{cy}"
+      add_transform(:rotate, string)
       self
     end
 
@@ -27,9 +29,23 @@ module SVGPlot
       self
     end
 
-    def matrix(a, b, c, d, e, f)
-      add_transform(:matrix, "#{a}, #{b}, #{c}, #{d}, #{e}, #{f}")
+    def matrix(*args)
+      fail('matrix takes 6 args') unless args.size == 6
+      add_transform(:matrix, args.join(', '))
       self
     end
+
+    def linearGradient(id, attributes = {}, if_exists = :skip, &block)
+      fail('image ref not set, cannot use linearGradient') if @img.nil?
+      object = SVGPlot::SVGLinearGradient.new(@img, attributes)
+      @img.add_def(id, object, if_exists, &block)
+    end
+
+    def radialGradient(id, attributes = {}, if_exists = :skip, &block)
+      fail('image ref not set, cannot use radialGradient') if @img.nil?
+      object = SVGPlot::SVGRadialGradient.new(@img, attributes)
+      @img.add_def(id, object, if_exists, &block)
+    end
+    # rubocop:enable Style/MethodName
   end
 end

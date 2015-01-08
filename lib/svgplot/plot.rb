@@ -93,20 +93,6 @@ module SVGPlot
       )
     end
 
-    # rubocop disable:Style/MethodName
-    def linearGradient(id, attributes = {}, if_exists = :skip, &block)
-      fail('image ref not set, cannot use linearGradient') if @img.nil?
-      object = SVGPlot::SVGLinearGradient.new(@img, attributes)
-      @img.add_def(id, object, if_exists, &block)
-    end
-
-    def radialGradient(id, attributes = {}, if_exists = :skip, &block)
-      fail('image ref not set, cannot use radialGradient') if @img.nil?
-      object = SVGPlot::SVGRadialGradient.new(@img, attributes)
-      @img.add_def(id, object, if_exists, &block)
-    end
-    # rubocop enable:Style/MethodName
-
     def spawn_child(tag, *args, &block)
       parameters = {} if args.size == 0
 
@@ -197,8 +183,8 @@ module SVGPlot
     end
     
     def write(output)
-      raise "Can not write to given output!" unless output.respond_to?(:<<)
-      output << "<#{@tag.to_s}"
+      fail('Can not write to given output!') unless output.respond_to? :<<
+      output << "<#{@tag}"
       @attributes.each do
         |attribute, value|
         output << " #{attribute.to_s}=\""
@@ -207,31 +193,31 @@ module SVGPlot
         elsif attribute == :points
           write_points(value, output)
         else
-          output << "#{value.to_s}"
+          output << value.to_s
         end
-        output << "\""
+        output << '"'
       end
 
       if @children.empty?
-        output << "/>"
+        output << '/>'
       else
-        output << ">"
+        output << '>'
         @children.each { |c| c.write(output) }
-        output << "</#{@tag.to_s}>"
-      end  
+        output << "</#{@tag}>"
+      end
     end
 
     def to_s
-      str = ""
+      str = ''
       write(str)
-      return str
+      str
     end
 
     private
 
     def add_transform(type, params)
       attr_name = validate_attribute(:transform)
-      @attributes[attr_name] = "" if @attributes[attr_name].nil?
+      @attributes[attr_name] = '' if @attributes[attr_name].nil?
       @attributes[attr_name] = @attributes[attr_name] + "#{type}(#{params})"
     end
   end
@@ -240,7 +226,7 @@ module SVGPlot
   class SVGTagWithParent < SVGPlot::SVGTag
     attr_reader :img
 
-    def initialize(img, tag, params = {}, output=nil, &block)
+    def initialize(img, tag, params = {}, &block)
       @img = img
       super(tag, params, &block)
     end
@@ -258,74 +244,57 @@ module SVGPlot
     end
   end
 
+  ##
+  # Main Plot object, contains other tags
   class Plot < SVGPlot::SVGTagWithParent
-    def initialize(params = {}, output=nil, &block)
+    def initialize(params = {}, output = nil, &block)
       @defs = nil
       @defs_ids = {}
 
-      params[:"version"] = "1.1" unless params[:"version"]
-      params[:"xmlns"] = "http://www.w3.org/2000/svg" unless params[:"xmlns"]
-      params[:"xmlns:xlink"] = "http://www.w3.org/1999/xlink" unless params[:"xmlns:xlink"]
-      super(self, "svg", params, &block)
+      params[:version] ||= '1.1'
+      params[:xmlns] ||= 'http://www.w3.org/2000/svg'
+      params[:"xmlns:xlink"] ||= 'http://www.w3.org/1999/xlink'
+      super(self, 'svg', params, &block)
 
-      @output = (output or "")
+      @output = output || ''
       validate_output(@output) if output
 
-      if block
-        write(@output)
-      end
+      write(@output) if block
     end
 
     def add_def(id, child, if_exists = :skip, &block)
-      #init on the fly if needed
-      @defs = SVGPlot::SVGTagWithParent.new(@img, "defs") if @defs.nil?
+      @defs = SVGPlot::SVGTagWithParent.new(@img, 'defs') if @defs.nil?
 
-      #raise an error if id is already present and if_exists is :fail
-      raise "Definition '#{id}' already exists" if @defs_ids.has_key? id and if_exists == :fail
-
-      #return the existing element if id is already present and if_exists is :skip
-      return @defs_ids[id] if if_exists == :skip and @defs_ids.has_key? id
-
-      #search for the existing element
-      if @defs_ids[id]
-        old_idx = nil
-        @defs.children.each_with_index { |c,i| if c.attributes[:id] == id then old_idx = i ; break end }
+      if @defs_ids.key?(id) && if_exists == :fail
+        fail("Definition '#{id}' already exists")
       end
 
-      #force the id, append the child to definitions and call the given block to fill the group
+      return @defs_ids[id] if if_exists == :skip && @defs_ids.key?(id)
+
+      if @defs_ids[id]
+        old_idx = nil
+        @defs.children.each_with_index do |c, i|
+          if c.attributes[:id] == id
+            old_idx = i
+            break
+          end
+        end
+      end
+
       child.attributes[:id] = id
       @defs.append_child child
       @defs_ids[id] = child
       child.instance_exec block
 
-      #remove the old element if present
       @defs.children.delete_at old_idx if old_idx
 
-      return child
+      child
     end
 
     def def_group(id, if_exists = :skip, &block)
-      g = SVGPlot::SVGTagWithParent.new(@img, "g", :id => id)
-      return add_def(id, g, if_exists, &block)
+      g = SVGPlot::SVGTagWithParent.new(@img, 'g', id: id)
+      add_def(id, g, if_exists, &block)
     end
-
-    #def text(x, y, text, style=DefaultStyles[:text])
-    #  @output << %Q{<text x="#{x}" y="#{y}"}
-    #  style = fix_style(default_style.merge(style))
-    #  @output << %Q{ font-family="#{style.delete "font-family"}"} if style["font-family"]
-    #  @output << %Q{ font-size="#{style.delete "font-size"}"} if style["font-size"]
-    #  write_style style
-    #  @output << ">"
-    #  dy = 0      # First line should not be shifted
-    #  text.each_line do |line|
-    #    @output << %Q{<tspan x="#{x}" dy="#{dy}em">}
-    #    dy = 1    # Next lines should be shifted
-    #    @output << line.rstrip
-    #    @output << "</tspan>"
-    #  end
-    #  @output << "</text>"
-    #end
-
 
     def write(output)
       validate_output(output)
@@ -336,33 +305,31 @@ module SVGPlot
       @children.shift if @defs
     end
 
-
-    # how to define output << image ?
-    #def <<(output)
-    #  write(output)
-    #end
-
     private
 
     def validate_output(output)
-      raise "Illegal output object: #{output.inspect}" unless output.respond_to?(:<<)
+      fail("Illegal output: #{output.inspect}") unless output.respond_to? :<<
     end
 
     # Writes file header
     def write_header(output)
+      # rubocop:disable Metrics/LineLength
       output << <<-HEADER
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
       HEADER
+      # rubocop:enable Metrics/LineLength
     end
   end
 
-#SVG Path element, with ruby methods to describe the path
+  # SVG Path element, with ruby methods to describe the path
   class SVGPath < SVGPlot::SVGTagWithParent
-    def initialize(img = nil, attributes={}, &block)
-      attributes.merge!(:d => "") unless attributes.has_key? :d
-      super(img, "path", attributes)
+    def initialize(img = nil, attributes = {})
+      attributes.merge!(d: '') unless attributes.key? :d
+      super(img, 'path', attributes)
     end
+
+    # rubocop:disable Metrics/ParameterLists, Style/MethodName
 
     ##
     # moveTo commands
@@ -423,8 +390,9 @@ module SVGPlot
     ##
     # curveTo commands
     #
-    # Draws a cubic Bezier curve from current pen point to dx,dy. x1,y1 and x2,y2
-    # are start and end control points of the curve, controlling how it bends.
+    # Draws a cubic Bezier curve from current pen point to dx,dy.
+    # x1,y1 and x2,y2 are start and end control points of the curve,
+    # controlling how it bends.
     #
     ##
     def curveTo(dx, dy, x1, y1, x2, y2)
@@ -453,9 +421,9 @@ module SVGPlot
 
     ##
     # quadratic Bezier curveTo commands
-    # 
-    # Draws a quadratic Bezier curve from current pen point to dx,dy. x1,y1 is the
-    # control point controlling how the curve bends.
+    #
+    # Draws a quadratic Bezier curve from current pen point to dx,dy. x1,y1 is
+    # the control point controlling how the curve bends.
     #
     ##
     def qcurveTo(dx, dy, x1, y1)
@@ -469,8 +437,8 @@ module SVGPlot
     ##
     # smooth quadratic Bezier curveTo commands
     #
-    # Draws a quadratic Bezier curve from current pen point to dx,dy. The control
-    # point is assumed to be the same as the last control point used.
+    # Draws a quadratic Bezier curve from current pen point to dx,dy. The
+    # control point is assumed to be the same as the last control point used.
     #
     ##
     def sqcurveTo(dx, dy)
@@ -489,7 +457,7 @@ module SVGPlot
     # The x-rotation determines how much the arc is to be rotated around the
     # x-axis. It only has an effect when rx and ry have different values.
     # The large-arc-flag doesn't seem to be used (can be either 0 or 1). Neither
-    # value (0 or 1) changes the arc. 
+    # value (0 or 1) changes the arc.
     # The sweep-flag determines the direction to draw the arc in.
     #
     ##
@@ -504,6 +472,8 @@ module SVGPlot
         "A#{rx},#{ry} #{axis_rot} #{large_arc_flag},#{sweep_flag} #{dx},#{dy}"
       )
     end
+
+    # rubocop:enable Metrics/ParameterLists, Style/MethodName
 
     ##
     # close path command
