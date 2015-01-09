@@ -1,3 +1,5 @@
+##
+# Define additional spec pieces outside the generated data
 module SVGPlot
   ##
   # Aliases for common tags
@@ -6,7 +8,8 @@ module SVGPlot
     rectangle: :rect
   }
 
-
+  ##
+  # Expansion definitions for unnamed args
   SVG_EXPANSION = {
     line: [:x1, :y1, :x2, :y2],
     circle: [:cx, :cy, :r],

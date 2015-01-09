@@ -1,4 +1,6 @@
 module SVGPlot
+  ##
+  # Base tag object for SVG components
   class Tag
     def self.parse_args(tag, keys, values)
       if keys.size != values.size
@@ -8,4 +10,3 @@ module SVGPlot
     end
   end
 end
-
