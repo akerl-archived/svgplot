@@ -10,20 +10,19 @@ module SVGPlot
     def run!
       @files.each do |file|
         output = file.sub(/\.svgplot/, '') + '.svg'
-        File.open(output, 'w') do |fh|
-          build file, fh
-        end
+        File.open(output, 'w') { |fh| build file, fh }
       end
     end
 
     private
 
     def build(file, fh)
-      SVGPlot::Plot.new({ width: '100%', height: '100%' }, fh) do
+      SVGPlot.new({ width: '100%', height: '100%' }, fh) do
         begin
           instance_eval File.read(file), file
         rescue StandardError => e
-          backtrace = e.backtrace.grep(Regexp.new(File.expand_path(file)))
+          regexp = Regexp.new(File.expand_path(file))
+          backtrace = e.backtrace.grep regexp
           raise e.class, e.message, backtrace
         end
       end
