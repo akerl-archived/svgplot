@@ -19,7 +19,12 @@ module SVGPlot
 
       def valid_attribute?(attribute)
         allowed = SVGPlot::SVG_STRUCTURE[@tag.to_sym][:attributes]
-        return attribute.to_sym if allowed.include?(attribute.to_sym)
+        return true if allowed.include?(attribute.to_sym)
+        false
+      end
+
+      def validate_attribute(attribute)
+        return attribute.to_sym if valid_attribute? attribute
         fail "#{@tag} does not support attribute #{attribute}"
       end
 
@@ -32,7 +37,7 @@ module SVGPlot
           clean["data-#{key}".to_sym] = value
         end
         raw.each_key { |k| validate_attribute k }
-        clean.reject(&:nil?).merge raw
+        clean.reject { |_, v| v.nil? }.merge raw
       end
 
       def parse_transforms(transforms)
@@ -45,6 +50,11 @@ module SVGPlot
       def parse_styles(styles)
         return nil unless styles && valid_attribute?(:styles)
         styles.each_with_object('') { |(k, v), str| str << "#{k}:#{v};" }
+      end
+
+      def parse_method_name(method)
+        check = /^(?<name>.*)(?<op>=|\?)$/.match(method)
+        return check if check && valid_attribute?(check[:name])
       end
 
       def parse_method_op(op, attr, args, &block)

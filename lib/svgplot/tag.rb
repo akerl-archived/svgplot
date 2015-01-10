@@ -9,7 +9,7 @@ module SVGPlot
     attr_reader :tag, :attributes, :children
 
     def initialize(tag, attributes = {}, &block)
-      @tag = SVGPlot::Tag.parse_tag tag
+      @tag = parse_tag tag
       @attributes = parse_attributes attributes
       @children = []
 
@@ -65,12 +65,17 @@ module SVGPlot
       append_child ChildTag.new(@img, tag, parameters, &block)
     end
 
+    def respond_to?(method)
+      return true if parse_method_name(method) || parse_child_name(meth)
+      super
+    end
+
     def method_missing(method, *args, &block)
-      check = /^(?<name>.*)(?<op>=|\?)$/.match(meth) || {}
-      if check[:op]
-        return parse_method_op(check[:op], attr, args, &block)
+      check = parse_method_name(method)
+      if check
+        return parse_method_op(check[:op], check[:name], args, &block)
       else
-        child_name = parse_child_name(meth)
+        child_name = parse_child_name(method)
         return spawn_child(child_name, *args, &block) if child_name
       end
       super
