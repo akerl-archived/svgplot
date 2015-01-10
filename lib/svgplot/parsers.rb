@@ -48,7 +48,7 @@ module SVGPlot
       end
 
       def parse_styles(styles)
-        return nil unless styles && valid_attribute?(:styles)
+        return nil unless styles && valid_attribute?(:style)
         styles.each_with_object('') { |(k, v), str| str << "#{k}:#{v};" }
       end
 

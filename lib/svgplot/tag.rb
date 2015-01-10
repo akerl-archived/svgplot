@@ -5,6 +5,7 @@ module SVGPlot
     include Parsers::Tag
     include Transform
     include Defaults
+    include Expansion
 
     attr_reader :tag, :attributes, :children
 
@@ -43,7 +44,7 @@ module SVGPlot
     end
 
     def write(output)
-      output << "#{@tag}"
+      output << "<#{@tag}"
       @attributes.each { |attr, value| output << %( #{attr}="#{value}") }
       if @children.empty?
         output << '/>'
@@ -56,7 +57,7 @@ module SVGPlot
 
     def spawn_child(tag, *args, &block)
       parameters = args.first.is_a?(Hash) ? args.unshift : {}
-      unless parameters
+      if parameters.empty?
         parameters = args.last.is_a?(Hash) ? args.pop : {}
         parameters.merge! expand(tag, args)
       end
