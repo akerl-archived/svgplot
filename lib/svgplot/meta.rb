@@ -27,17 +27,15 @@ module SVGPlot
       end
       result
     end,
-    polygon: lambda do |args|
-      if args.length.odd?
-        fail ArgumentError 'Illegal number of coordinates (should be even)'
-      end
-      { points: args }
-    end,
-    polyline: lambda do |args|
-      if args.length.odd?
-        fail ArgumentError 'Illegal number of coordinates (should be even)'
-      end
-      { points: args }
-    end
+    polygon: POINT_LAMBDA,
+    polyline: POINT_LAMBDA
   }
+
+  POINT_LAMBDA = lambda do |args|
+    if args.length.odd?
+      fail ArgumentError 'Illegal number of coordinates (should be even)'
+    end
+    { points: args.each_slice(2).map { |x| x.join ',' }.join ' ' }
+  end
 end
+

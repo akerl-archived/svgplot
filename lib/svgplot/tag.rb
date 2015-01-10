@@ -4,6 +4,7 @@ module SVGPlot
   class Tag
     include Parsers::Tag
     include Transform
+    include Defaults
 
     attr_reader :tag, :attributes, :children
 
@@ -13,6 +14,20 @@ module SVGPlot
       @children = []
 
       instance_exec(&block) if block
+    end
+
+    def raw(data)
+      append_child Raw.new(@img, data)
+    end
+
+    def path(attributes = {}, &block)
+      append_child Path.new(@img, attributes, &block)
+    end
+
+    def to_s
+      str = ''
+      write(str)
+      str
     end
   end
 
