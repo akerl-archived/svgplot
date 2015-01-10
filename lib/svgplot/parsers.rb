@@ -1,4 +1,4 @@
-module
+module SVGPlot
   module Parsers
     module Tag
       private

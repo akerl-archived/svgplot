@@ -3,12 +3,11 @@ module SVGPlot
   # Tag object, represents a single SVG tag
   class Tag
     include Parsers::Tag
-    include Transforms
+    include Transform
 
     attr_reader :tag, :attributes, :children
 
     def initialize(tag, attributes = {}, &block)
-      @img = 
       @tag = SVGPlot::Tag.parse_tag tag
       @attributes = parse_attributes attributes
       @children = []
@@ -32,13 +31,19 @@ module SVGPlot
   ##
   # Child tag, used for tags within another tag
   class ChildTag < Tag
-    include AddGradient
-
     attr_reader :img
 
     def initialize(img, tag, params = {}, &block)
       @img = img
       super(tag, params, &block)
+    end
+
+    def linear_gradient(id, attributes = {}, if_exists = :skip, &block)
+      @img.add_def(id, LinearGradient.new(@img, attributes), if_exists, &block)
+    end
+
+    def radial_gradient(id, attributes = {}, if_exists = :skip, &block)
+      @img.add_def(id, RadialGradient.new(@img, attributes), if_exists, &block)
     end
   end
 

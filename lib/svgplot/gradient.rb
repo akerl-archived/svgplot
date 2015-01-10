@@ -1,17 +1,5 @@
 module SVGPlot
   ##
-  # Helpers to add gradients to a tag
-  module AddGradient
-    def linear_gradient(id, attributes = {}, if_exists = :skip, &block)
-      @img.add_def(id, LinearGradient.new(@img, attributes), if_exists, &block)
-    end
-
-    def radial_gradient(id, attributes = {}, if_exists = :skip, &block)
-      @img.add_def(id, RadialGradient.new(@img, attributes), if_exists, &block)
-    end
-  end
-
-  ##
   # SVG base gradient element, with ruby methods to describe the gradient
   class Gradient < ChildTag
     def fill
@@ -44,3 +32,4 @@ module SVGPlot
       super(img, 'radialGradient', attributes, &block)
     end
   end
+end
