@@ -46,6 +46,25 @@ module SVGPlot
         return nil unless styles && valid_attribute?(:styles)
         styles.each_with_object('') { |(k, v), str| str << "#{k}:#{v};" }
       end
+
+      def parse_method_op(op, attr, args, &block)
+        fail('Invalid attribute name') unless valid_attribute? attr
+        fail('Passing a block to setter or getter is not permitted') if block
+        return @attributes[attr] if op == '?'
+        return @attributes[attr] = args.first if args.size == 1
+        fail('Setting an attribute with multiple values is not permitted!')
+      end
+
+      def parse_child_name(name)
+        name = SVG_ALIAS[name.to_sym] if SVG_ALIAS[name.to_sym]
+
+        if SVG_STRUCTURE[@tag.to_sym][:elements].include?(name.to_sym)
+          return name.to_sym
+        elsif SVG_ELEMENTS.include?(name.to_sym)
+          fail "#{@tag} should not contain child #{name}"
+        end
+        nil
+      end
     end
   end
 end

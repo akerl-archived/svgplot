@@ -64,6 +64,17 @@ module SVGPlot
 
       append_child ChildTag.new(@img, tag, parameters, &block)
     end
+
+    def method_missing(method, *args, &block)
+      check = /^(?<name>.*)(?<op>=|\?)$/.match(meth) || {}
+      if check[:op]
+        return parse_method_op(check[:op], attr, args, &block)
+      else
+        child_name = parse_child_name(meth)
+        return spawn_child(child_name, *args, &block) if child_name
+      end
+      super
+    end
   end
 
   ##
