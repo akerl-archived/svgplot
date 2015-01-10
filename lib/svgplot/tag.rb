@@ -14,18 +14,6 @@ module SVGPlot
 
       instance_exec(&block) if block
     end
-
-    def parse_attributes(raw)
-      clean = {
-        transform: parse_transforms(raw.delete(:transform)),
-        style: parse_styles(raw.delete(:style))
-      }
-      raw.delete(:data) { Hash.new }.each do |key, value|
-        clean["data-#{key}".to_sym] = value
-      end
-      raw.each_key { |k| validate_attribute k }
-      clean.reject(&:nil?).merge raw
-    end
   end
 
   ##

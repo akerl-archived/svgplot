@@ -23,6 +23,18 @@ module SVGPlot
         fail "#{@tag} does not support attribute #{attribute}"
       end
 
+      def parse_attributes(raw)
+        clean = {
+          transform: parse_transforms(raw.delete(:transform)),
+          style: parse_styles(raw.delete(:style))
+        }
+        raw.delete(:data) { Hash.new }.each do |key, value|
+          clean["data-#{key}".to_sym] = value
+        end
+        raw.each_key { |k| validate_attribute k }
+        clean.reject(&:nil?).merge raw
+      end
+
       def parse_transforms(transforms)
         return nil unless transforms && valid_attribute?(:transform)
         transforms.each_with_object('') do |(attr, value), str|
