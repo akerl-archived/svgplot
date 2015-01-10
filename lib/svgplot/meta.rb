@@ -40,4 +40,3 @@ module SVGPlot
     polyline: POINT_LAMBDA
   }
 end
-
