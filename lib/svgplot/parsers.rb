@@ -1,5 +1,7 @@
 module SVGPlot
   module Parsers
+    ##
+    # Add parsing methods for various attributes
     module Tag
       private
 
@@ -10,7 +12,7 @@ module SVGPlot
 
       def parse_args(tag, keys, values)
         if keys.size != values.size
-         fail("Arg mismatch for #{tag}: wanted #{keys.size} got #{values.size}")
+          fail("Arg mismatch for #{tag}: got #{values.size}, not #{keys.size}")
         end
         Hash[keys.zip(values)]
       end
@@ -31,7 +33,7 @@ module SVGPlot
       def parse_styles(styles)
         return nil unless styles && valid_attribute?(:styles)
         styles.each_with_object('') { |(k, v), str| str << "#{k}:#{v};" }
-      end 
+      end
     end
   end
 end

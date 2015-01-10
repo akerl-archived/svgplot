@@ -47,6 +47,8 @@ module SVGPlot
     end
   end
 
+  ##
+  # Raw child, just prints data provided
   class Raw < ChildTag
     def initialize(img, data)
       @img = img
