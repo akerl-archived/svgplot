@@ -24,10 +24,34 @@ module SVGPlot
       append_child Path.new(@img, attributes, &block)
     end
 
+    def use(id, attributes = {})
+      id = id.attributes[:id] if id.is_a? Tag
+      attributes.merge!('xlink:href' => "##{id}")
+      append_child ChildTag.new(@img, 'use', attributes)
+    end
+
+    def append_child(child)
+      @children.push(child)
+      child.defaults = defaults
+      child
+    end
+
     def to_s
       str = ''
       write(str)
       str
+    end
+
+    def write(output)
+      output << "#{@tag}"
+      @attributes.each { |attr, value| output << %( #{attr}="#{value}") }
+      if @children.empty?
+        output << '/>'
+      else
+        output << '>'
+        @children.each { |c| c.write(output) }
+        output << "</#{@tag}>"
+      end
     end
   end
 
