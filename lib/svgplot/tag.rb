@@ -53,6 +53,17 @@ module SVGPlot
         output << "</#{@tag}>"
       end
     end
+
+    def spawn_child(tag, *args, &block)
+      parameters = args.first.is_a?(Hash) ? args.unshift : {}
+      unless parameters
+        parameters = args.last.is_a?(Hash) ? args.pop : {}
+        parameters.merge! expand(tag, args)
+      end
+      parameters = defaults.dup.merge! parameters
+
+      append_child ChildTag.new(@img, tag, parameters, &block)
+    end
   end
 
   ##

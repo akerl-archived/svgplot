@@ -39,4 +39,21 @@ module SVGPlot
     polygon: POINT_LAMBDA,
     polyline: POINT_LAMBDA
   }
+
+  ##
+  # Define processing for Expansion constants
+  module Expansion
+    def expand(tag, args)
+      expansion = SVG_EXPANSION[tag.to_sym]
+      fail("Unnamed parameters for #{tag} are not allowed!") unless expansion
+
+      if expansion.is_a? Array
+        parse_args(tag, expansion, args)
+      elsif expansion.is_a? Proc
+        expansion.call(args)
+      else
+        fail "Unexpected expansion mechanism: #{expansion.class}"
+      end
+    end
+  end
 end
