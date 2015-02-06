@@ -7,13 +7,15 @@ module SVGPlot
     end
 
     def stop(offset, color, opacity)
-      append_child(ChildTag.new(
-        @img,
-        'stop',
-        'offset' => offset,
-        'stop-color' => color,
-        'stop-opacity' => opacity
-      ))
+      append_child(
+        ChildTag.new(
+          @img,
+          'stop',
+          'offset' => offset,
+          'stop-color' => color,
+          'stop-opacity' => opacity
+        )
+      )
     end
   end
 
