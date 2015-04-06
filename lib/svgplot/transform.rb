@@ -13,7 +13,7 @@ module SVGPlot
     end
 
     def rotate(angle, cx = nil, cy = nil)
-      string = [cx, cy].any?(&:nil?) ?  "#{angle}" : "#{angle}, #{cx}, #{cy}"
+      string = [cx, cy].any?(&:nil?) ? "#{angle}" : "#{angle}, #{cx}, #{cy}"
       add_transform(:rotate, string)
       self
     end
