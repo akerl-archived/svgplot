@@ -5,7 +5,7 @@ module SVGPlot
     DEFAULTS = {
       version: 1.1,
       xmlns: 'http://www.w3.org/2000/svg',
-      :'xmlns:xlink' => 'http://www.w3.org/1999/xlink'
+      :'xmlns:xlink' => 'http://www.w3.org/1999/xlink' # rubocop:disable Style/HashSyntax, Metrics/LineLength
     }
 
     def initialize(params = {}, output = nil, &block)
