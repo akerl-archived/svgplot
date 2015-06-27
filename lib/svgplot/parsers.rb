@@ -43,7 +43,7 @@ module SVGPlot
       def parse_transforms(transforms)
         return nil unless transforms && valid_attribute?(:transform)
         transforms.each_with_object('') do |(attr, value), str|
-          str << "#{attr}(#{value.is_a?(Array) ? value.join(',') : value }) "
+          str << "#{attr}(#{value.is_a?(Array) ? value.join(',') : value}) "
         end
       end
 
