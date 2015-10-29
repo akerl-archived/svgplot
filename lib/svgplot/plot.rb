@@ -17,6 +17,7 @@ module SVGPlot
 
     def add_def(id, child, if_exists = :skip, &block)
       @defs ||= ChildTag.new(@img, 'defs')
+      @defs_ids ||= {}
       old_id = check_conflicts(id, if_exists) if @defs_ids.key? id
       return old_id if old_id
 
