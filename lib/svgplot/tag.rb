@@ -4,10 +4,10 @@ module SVGPlot
   class Tag
     include Parsers::Tag
     include Transform
-    include Defaults
     include Expansion
 
     attr_reader :tag, :attributes, :children
+    attr_writer :defaults
 
     def initialize(tag, attributes = {}, &block)
       @tag = parse_tag tag
@@ -23,6 +23,10 @@ module SVGPlot
 
     def path(attributes = {}, &block)
       append_child Path.new(@img, attributes, &block)
+    end
+
+    def defaults
+      @defaults ||= {}
     end
 
     def use(id, attributes = {})

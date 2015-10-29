@@ -1,4 +1,4 @@
 require 'spec_helper'
 
-describe SVGPlot do
+describe SVGPlot::Tag do
 end
