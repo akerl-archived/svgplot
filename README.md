@@ -18,6 +18,20 @@ Create an SVG object by initializing it with a size:
 plot = SVGPlot.new(width: 100, height: 100)
 ```
 
+SVGPlot is based directly on the SVG spec. Add children by calling their methods on the plot:
+
+```
+# Add the text 'foo' at position (1, 2)
+plot.text(1, 2) { 'foo' }
+```
+
+```
+# Add a rectangle
+plot.rectangle(1, 1, 10, 10)
+```
+
+A good example of the SVG library in practice is [GithubChart](https://github.com/akerl/githubchart/blob/master/lib/githubchart/svg.rb)
+
 ### Transformations
 
 To do an SVG transform on an object, just call the desired transform method on it:

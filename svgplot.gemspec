@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'svgplot'
-  s.version     = '0.2.0'
+  s.version     = '1.0.0'
   s.date        = Time.now.strftime("%Y-%m-%d")
 
   s.summary     = 'SVG Generation Library'
