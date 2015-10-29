@@ -39,6 +39,7 @@ module SVGPlot
     def add_transform(type, params)
       validate_attribute(:transform)
       @attributes[:transform] ||= ''
+      @attributes[:transform] << ' ' if @attributes[:transform].size > 0
       @attributes[:transform] << "#{type}(#{params})"
     end
   end

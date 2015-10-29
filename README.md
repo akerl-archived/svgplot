@@ -12,6 +12,13 @@ SVG creation library forked from [xytis's Rasem fork](https://github.com/xytis/r
 
 ## Usage
 
+Create an SVG object by initializing it with a size:
+
+```
+plot = SVGPlot.new(width: 100, height: 100)
+```
+
+
 ## Installation
 
     gem install svgplot
