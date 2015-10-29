@@ -18,6 +18,31 @@ Create an SVG object by initializing it with a size:
 plot = SVGPlot.new(width: 100, height: 100)
 ```
 
+### Transformations
+
+To do an SVG transform on an object, just call the desired transform method on it:
+
+```
+plot = SVGPlot.new(width: 100, height: 100)
+plot.text(1, 1) { 'foobar' }.translate(5, 5)
+```
+
+You can call transforms after the fact as well:
+
+```
+plot = SVGPlot.new(width: 100, height: 100)
+text = plot.text(1, 1) { 'foobar' }
+text.scale(2)
+```
+
+The list of available transforms:
+
+* translate(x, y = 0)
+* scale(x, y = 1)
+* rotate(angle, x = nil, y = nil)
+* skew_x(angle)
+* skew_y(angle)
+* matrix(a, b, c, d, e, f)
 
 ## Installation
 
