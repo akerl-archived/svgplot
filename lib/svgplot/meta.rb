@@ -6,7 +6,7 @@ module SVGPlot
   SVG_ALIAS = {
     group: :g,
     rectangle: :rect
-  }
+  }.freeze
 
   ##
   # Generic lambda for adding points, used below
@@ -38,7 +38,7 @@ module SVGPlot
     end,
     polygon: POINT_LAMBDA,
     polyline: POINT_LAMBDA
-  }
+  }.freeze
 
   ##
   # Define processing for Expansion constants

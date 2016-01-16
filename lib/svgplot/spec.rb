@@ -1,6 +1,8 @@
 # rubocop:disable SpaceAroundOperators
 # rubocop:disable SpaceInsideHashLiteralBraces
 # rubocop:disable HashSyntax
+# rubocop:disable Style/IndentAssignment
+# rubocop:disable Style/MutableConstant
 SVGPlot::SVG_ELEMENTS =
 [:a,
  :altGlyph,

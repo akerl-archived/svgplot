@@ -31,7 +31,7 @@ module SVGPlot
 
     def use(id, attributes = {})
       id = id.attributes[:id] if id.is_a? Tag
-      attributes.merge!('xlink:href' => "##{id}")
+      attributes['xlink:href'] = "##{id}"
       append_child ChildTag.new(@img, 'use', attributes)
     end
 
@@ -77,12 +77,9 @@ module SVGPlot
 
     def method_missing(method, *args, &block)
       check = parse_method_name(method)
-      if check
-        return parse_method_op(check[:op], check[:name], args, &block)
-      else
-        child_name = parse_child_name(method)
-        return spawn_child(child_name, *args, &block) if child_name
-      end
+      return parse_method_op(check[:op], check[:name], args, &block) if check
+      child_name = parse_child_name(method)
+      return spawn_child(child_name, *args, &block) if child_name
       super
     end
   end
