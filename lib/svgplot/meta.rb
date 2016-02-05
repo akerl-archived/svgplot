@@ -12,7 +12,7 @@ module SVGPlot
   # Generic lambda for adding points, used below
   POINT_LAMBDA = lambda do |args|
     if args.length.odd?
-      fail ArgumentError 'Illegal number of coordinates (should be even)'
+      raise ArgumentError 'Illegal number of coordinates (should be even)'
     end
     { points: args.each_slice(2).map { |x| x.join(',') }.join(' ') }
   end
@@ -27,7 +27,7 @@ module SVGPlot
     text: [:x, :y],
     rect: lambda do |args|
       unless [4, 5, 6].include? args.size
-        fail ArgumentError 'Wrong unnamed argument count'
+        raise ArgumentError 'Wrong unnamed argument count'
       end
       result = Hash[[:x, :y, :width, :height].zip(args)]
       if args.size > 4
@@ -45,14 +45,14 @@ module SVGPlot
   module Expansion
     def expand(tag, args)
       expansion = SVG_EXPANSION[tag.to_sym]
-      fail("Unnamed parameters for #{tag} are not allowed!") unless expansion
+      raise("Unnamed parameters for #{tag} are not allowed!") unless expansion
 
       if expansion.is_a? Array
         parse_args(tag, expansion, args)
       elsif expansion.is_a? Proc
         expansion.call(args)
       else
-        fail "Unexpected expansion mechanism: #{expansion.class}"
+        raise "Unexpected expansion mechanism: #{expansion.class}"
       end
     end
   end

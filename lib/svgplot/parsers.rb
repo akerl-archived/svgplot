@@ -7,12 +7,12 @@ module SVGPlot
 
       def parse_tag(tag)
         return tag.to_sym if SVGPlot::SVG_ELEMENTS.include?(tag.to_sym)
-        fail "#{tag} is not a valid tag"
+        raise "#{tag} is not a valid tag"
       end
 
       def parse_args(tag, keys, values)
         if keys.size != values.size
-          fail("Arg mismatch for #{tag}: got #{values.size}, not #{keys.size}")
+          raise("Arg mismatch for #{tag}: got #{values.size}, not #{keys.size}")
         end
         Hash[keys.zip(values)]
       end
@@ -25,7 +25,7 @@ module SVGPlot
 
       def validate_attribute(attribute)
         return attribute.to_sym if valid_attribute? attribute
-        fail "#{@tag} does not support attribute #{attribute}"
+        raise "#{@tag} does not support attribute #{attribute}"
       end
 
       def parse_attributes(raw)
@@ -58,11 +58,11 @@ module SVGPlot
       end
 
       def parse_method_op(op, attr, args, &block)
-        fail('Invalid attribute name') unless valid_attribute? attr
-        fail('Passing a block to setter or getter is not permitted') if block
+        raise('Invalid attribute name') unless valid_attribute? attr
+        raise('Passing a block to setter or getter is not permitted') if block
         return @attributes[attr] if op == '?'
         return @attributes[attr] = args.first if args.size == 1
-        fail('Setting an attribute with multiple values is not permitted!')
+        raise('Setting an attribute with multiple values is not permitted!')
       end
 
       def parse_child_name(name)
@@ -71,7 +71,7 @@ module SVGPlot
         if SVG_STRUCTURE[@tag.to_sym][:elements].include?(name.to_sym)
           return name.to_sym
         elsif SVG_ELEMENTS.include?(name.to_sym)
-          fail "#{@tag} should not contain child #{name}"
+          raise "#{@tag} should not contain child #{name}"
         end
         nil
       end

@@ -29,7 +29,7 @@ module SVGPlot
     end
 
     def matrix(*args)
-      fail('matrix takes 6 args') unless args.size == 6
+      raise('matrix takes 6 args') unless args.size == 6
       add_transform(:matrix, args.join(', '))
       self
     end
@@ -39,7 +39,7 @@ module SVGPlot
     def add_transform(type, params)
       validate_attribute(:transform)
       @attributes[:transform] ||= ''
-      @attributes[:transform] << ' ' if @attributes[:transform].size > 0
+      @attributes[:transform] << ' ' unless @attributes[:transform].empty?
       @attributes[:transform] << "#{type}(#{params})"
     end
   end

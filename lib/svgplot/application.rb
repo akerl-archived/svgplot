@@ -4,7 +4,7 @@ module SVGPlot
   class Application
     def initialize(*args)
       @files = args.empty? ? Dir.glob(File.expand_path('*.svgplot')) : args
-      fail('No input files') if @files.empty?
+      raise('No input files') if @files.empty?
     end
 
     def run!

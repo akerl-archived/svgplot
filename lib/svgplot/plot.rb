@@ -35,7 +35,7 @@ module SVGPlot
     end
 
     def write(output)
-      fail("Illegal output: #{@output.inspect}") unless @output.respond_to? :<<
+      raise("Illegal output: #{@output.inspect}") unless @output.respond_to? :<<
       output << header
       @children.unshift @defs if @defs
       super(output)
@@ -47,7 +47,7 @@ module SVGPlot
     def check_conflicts(id, if_exists)
       case if_exists
       when :fail
-        fail("Definition '#{id}' already exists")
+        raise("Definition '#{id}' already exists")
       when :skip
         return @defs_ids[id]
       else
