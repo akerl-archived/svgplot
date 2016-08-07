@@ -70,7 +70,7 @@ module SVGPlot
       append_child ChildTag.new(@img, tag, parameters, &block)
     end
 
-    def respond_to?(method)
+    def respond_to_missing?(method)
       return true if parse_method_name(method) || parse_child_name(meth)
       super
     end
