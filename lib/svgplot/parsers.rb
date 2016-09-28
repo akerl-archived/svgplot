@@ -68,11 +68,13 @@ module SVGPlot
       def parse_child_name(name)
         name = SVG_ALIAS[name.to_sym] if SVG_ALIAS[name.to_sym]
 
+        # rubocop:disable Style/GuardClause
         if SVG_STRUCTURE[@tag.to_sym][:elements].include?(name.to_sym)
           return name.to_sym
         elsif SVG_ELEMENTS.include?(name.to_sym)
           raise "#{@tag} should not contain child #{name}"
         end
+        # rubocop:enable Style/GuardClause
         nil
       end
     end
