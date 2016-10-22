@@ -49,7 +49,7 @@ module SVGPlot
       when :fail
         raise("Definition '#{id}' already exists")
       when :skip
-        return @defs_ids[id]
+        @defs_ids[id]
       else
         @defs.children.reject! { |x| x.attributes[:id] == id }
         nil
