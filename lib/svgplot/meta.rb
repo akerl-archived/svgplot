@@ -20,16 +20,16 @@ module SVGPlot
   ##
   # Expansion definitions for unnamed args
   SVG_EXPANSION = {
-    line: [:x1, :y1, :x2, :y2],
-    circle: [:cx, :cy, :r],
-    image: [:x, :y, :width, :height, :'xlink:href'],
-    ellipse: [:cx, :cy, :rx, :ry],
-    text: [:x, :y],
+    line: %i[x1 y1 x2 y2],
+    circle: %i[cx cy r],
+    image: %i[x y width height xlink:href],
+    ellipse: %i[cx cy rx ry],
+    text: %i[x y],
     rect: lambda do |args|
       unless [4, 5, 6].include? args.size
         raise ArgumentError 'Wrong unnamed argument count'
       end
-      result = Hash[[:x, :y, :width, :height].zip(args)]
+      result = Hash[%i[x y width height].zip(args)]
       if args.size > 4
         result[:rx] = args[4]
         result[:ry] = args[5] || args[4]

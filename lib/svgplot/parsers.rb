@@ -33,7 +33,7 @@ module SVGPlot
           transform: parse_transforms(raw.delete(:transform)),
           style: parse_styles(raw.delete(:style))
         }
-        raw.delete(:data) { Hash.new }.each do |key, value|
+        raw.delete(:data) { {} }.each do |key, value|
           clean["data-#{key}".to_sym] = value
         end
         raw.each_key { |k| validate_attribute k }
