@@ -1,2 +1,6 @@
 inherit_gem:
   goodcop: .rubocop.yml
+AllCops:
+  Include:
+  - 'bin/*'
+  - 'dev/*'

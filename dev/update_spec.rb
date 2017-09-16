@@ -37,9 +37,14 @@ puts
 xmlns = %w[svg cc dc rdf inkscape xlink].map! { |e| ('xmlns:' + e).to_sym }
 structure[:svg][:attributes].push(:xmlns, *xmlns)
 
-skipped_cops = %w[Style/SpaceAroundOperators Style/SpaceInsideHashLiteralBraces
-                  Style/HashSyntax Style/SymbolArray Style/IndentAssignment
-                  Style/MutableConstant]
+skipped_cops = %w[
+  Layout/SpaceAroundOperators
+  Layout/SpaceInsideHashLiteralBraces
+  Style/HashSyntax
+  Style/SymbolArray
+  Layout/IndentAssignment
+  Style/MutableConstant
+]
 
 File.open(file_path, 'w') do |file|
   skipped_cops.each { |cop| file << "# rubocop:disable #{cop}\n" }
