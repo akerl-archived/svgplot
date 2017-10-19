@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.test_files  = `git ls-files spec/*`.split
   s.executables = ['svgplot']
 
-  s.add_development_dependency 'rubocop', '~> 0.50.0'
+  s.add_development_dependency 'rubocop', '~> 0.51.0'
   s.add_development_dependency 'goodcop', '~> 0.1.0'
   s.add_development_dependency 'rake', '~> 12.1.0'
   s.add_development_dependency 'codecov', '~> 0.1.1'
