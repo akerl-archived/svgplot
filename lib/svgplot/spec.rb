@@ -1,8 +1,8 @@
-# rubocop:disable Style/SpaceAroundOperators
-# rubocop:disable Style/SpaceInsideHashLiteralBraces
+# rubocop:disable Layout/SpaceAroundOperators
+# rubocop:disable Layout/SpaceInsideHashLiteralBraces
 # rubocop:disable Style/HashSyntax
 # rubocop:disable Style/SymbolArray
-# rubocop:disable Style/IndentAssignment
+# rubocop:disable Layout/IndentAssignment
 # rubocop:disable Style/MutableConstant
 SVGPlot::SVG_ELEMENTS =
 [:a,
@@ -5334,3 +5334,9 @@ SVGPlot::SVG_STRUCTURE =
   {:elements=>[:vkern],
    :attributes=>
     [:id, :"xml:base", :"xml:lang", :"xml:space", :u1, :g1, :u2, :g2, :k]}}
+# rubocop:enable Layout/SpaceAroundOperators
+# rubocop:enable Layout/SpaceInsideHashLiteralBraces
+# rubocop:enable Style/HashSyntax
+# rubocop:enable Style/SymbolArray
+# rubocop:enable Layout/IndentAssignment
+# rubocop:enable Style/MutableConstant

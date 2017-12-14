@@ -130,3 +130,4 @@ module SVGPlot
     end
   end
 end
+# rubocop:enable Metrics/ParameterLists

@@ -52,4 +52,5 @@ File.open(file_path, 'w') do |file|
   PP.pp(elements, file)
   file << "SVGPlot::SVG_STRUCTURE =\n"
   PP.pp(structure, file)
+  skipped_cops.each { |cop| file << "# rubocop:enable #{cop}\n" }
 end
