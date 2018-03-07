@@ -10,11 +10,14 @@ version_url = 'http://www.w3.org/TR/SVG11/'
 elements = []
 structure = {}
 
-Nokogiri::HTML(open(version_url + 'eltindex.html')).css('li').each do |li|
+page = open(version_url + 'eltindex.html') # rubocop:disable Security/Open
+
+Nokogiri::HTML(page).css('li').each do |li|
   name = li.css('span.element-name').children[0].text
 
   link = li.css('a')[0]['href']
-  divs = Nokogiri::HTML(open(version_url + link)).css('div.element-summary')
+  link_page = open(version_url + link) # rubocop:disable Security/Open
+  divs = Nokogiri::HTML(link_page).css('div.element-summary')
   more = divs.find do |summary|
     summary.css('div.element-summary-name').children[0].text == name
   end
