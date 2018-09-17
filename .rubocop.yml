@@ -1,3 +1,2 @@
 inherit_gem:
   goodcop: .rubocop.yml
-  - 'dev/*'
