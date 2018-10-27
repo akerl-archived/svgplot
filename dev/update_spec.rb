@@ -41,12 +41,13 @@ xmlns = %w[svg cc dc rdf inkscape xlink].map! { |e| ('xmlns:' + e).to_sym }
 structure[:svg][:attributes].push(:xmlns, *xmlns)
 
 skipped_cops = %w[
+  Layout/AlignHash
+  Layout/IndentAssignment
   Layout/SpaceAroundOperators
   Layout/SpaceInsideHashLiteralBraces
   Style/HashSyntax
-  Style/SymbolArray
-  Layout/IndentAssignment
   Style/MutableConstant
+  Style/SymbolArray
 ]
 
 File.open(file_path, 'w') do |file|
