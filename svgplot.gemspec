@@ -25,5 +25,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'nokogiri', '~> 1.10.0'
   s.add_development_dependency 'rake', '~> 12.3.0'
   s.add_development_dependency 'rspec', '~> 3.8.0'
-  s.add_development_dependency 'rubocop', '~> 0.62.0'
+  s.add_development_dependency 'rubocop', '~> 0.63.0'
 end
