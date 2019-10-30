@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.executables = ['svgplot']
 
   s.add_development_dependency 'codecov', '~> 0.1.1'
-  s.add_development_dependency 'fuubar', '~> 2.4.1'
+  s.add_development_dependency 'fuubar', '~> 2.5.0'
   s.add_development_dependency 'goodcop', '~> 0.7.1'
   s.add_development_dependency 'nokogiri', '~> 1.10.0'
   s.add_development_dependency 'rake', '~> 13.0.0'
